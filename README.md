@@ -4,3 +4,14 @@
 [![Coverage Status](https://coveralls.io/repos/github/Modest-Project/DeepComparator/badge.svg?branch=main)](https://coveralls.io/github/Modest-Project/DeepComparator?branch=main)
 
 # DeepComparator
+
+## Installing
+
+```st
+Metacello new
+	baseline: 'DeepComparator';
+  	repository: 'github://Modest-Project/DeepComparator:main/src';
+  	load
+```
+
+## Examples
