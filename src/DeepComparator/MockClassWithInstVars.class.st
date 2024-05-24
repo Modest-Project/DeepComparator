@@ -7,3 +7,15 @@ Class {
 	],
 	#category : #'DeepComparator-Tests'
 }
+
+{ #category : #accessing }
+MockClassWithInstVars >> number: aNumber [
+
+	number := aNumber
+]
+
+{ #category : #accessing }
+MockClassWithInstVars >> string: aString [
+
+	string := aString
+]
