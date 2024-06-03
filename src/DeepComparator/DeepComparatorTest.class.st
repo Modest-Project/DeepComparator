@@ -10,14 +10,11 @@ DeepComparatorTest >> testCompareArrays [
 	| array1 array2 |
 	array1 := Array new: 5.
 	array2 := Array new: 5.
-	"array3 := Array new: 10."
 
 	array1 at: 1 put: 1.
 	array2 at: 1 put: 1.
-	"array3 at: 1 put: 1."
 
-	self assert: (DeepComparator deepEquals: array1 with: array2)
-	"self assert: (DeepComparator deepEquals: array1 with: array3) not"
+	self assert: (DeepComparator assert: array1 equals: array2)
 ]
 
 { #category : #tests }
@@ -35,8 +32,21 @@ DeepComparatorTest >> testCompareComplexObject [
 	object2 number: 1.
 	object3 number: 3.
 
-	self assert: (DeepComparator deepEquals: object1 with: object2).
-	self assert: (DeepComparator deepEquals: object1 with: object3) not
+	self assert: (DeepComparator assert: object1 equals: object2).
+	self assert: (DeepComparator assert: object1 equals: object3) not
+]
+
+{ #category : #tests }
+DeepComparatorTest >> testCompareDictionary [
+
+	| dictionary1 dictionary2 |
+	dictionary1 := Dictionary new.
+	dictionary2 := Dictionary new.
+
+	dictionary1 at: 1 put: 3.
+	dictionary2 at: 1 put: 3.
+
+	self assert: (DeepComparator assert: dictionary1 equals: dictionary2)
 ]
 
 { #category : #tests }
@@ -60,10 +70,10 @@ DeepComparatorTest >> testCompareNestedComplexObject [
 	array2 at: 1 put: object2.
 	array3 at: 1 put: object3.
 
-	self assert: (DeepComparator deepEquals: object1 with: object2).
-	self assert: (DeepComparator deepEquals: object1 with: object3) not.
-	self assert: (DeepComparator deepEquals: array1 with: array1).
-	self assert: (DeepComparator deepEquals: array1 with: array3) not
+	self assert: (DeepComparator assert: object1 equals: object2).
+	self assert: (DeepComparator assert: object1 equals: object3) not.
+	self assert: (DeepComparator assert: array1 equals: array1).
+	self assert: (DeepComparator assert: array1 equals: array3) not
 ]
 
 { #category : #tests }
@@ -82,34 +92,47 @@ DeepComparatorTest >> testCompareNestedObjects [
 	array4 at: 1 put: 1.
 	array5 at: 1 put: 1.
 
-	self assert: (DeepComparator deepEquals: array1 with: array2)
+	self assert: (DeepComparator assert: array1 equals: array2)
 	"self assert: (DeepComparator deepEquals: array1 with: array3) not"
 ]
 
 { #category : #tests }
 DeepComparatorTest >> testCompareNumbers [
 
-	self assert: (DeepComparator deepEquals: 1 with: 1).
-	self assert: (DeepComparator deepEquals: 1.1 with: 1.1).
-	self assert: (DeepComparator deepEquals: 1 / 2s with: 1 / 2s).
-	self assert: (DeepComparator deepEquals: -1 with: -1).
-	self assert: (DeepComparator deepEquals: 0 with: 1) not.
-	self assert: (DeepComparator deepEquals: 1.1 with: 0) not.
-	self assert: (DeepComparator deepEquals: 1 / 2s with: 0) not.
-	self assert: (DeepComparator deepEquals: -1 with: 0) not
+	self assert: (DeepComparator assert: 1 equals: 1).
+	self assert: (DeepComparator assert: 1.1 equals: 1.1).
+	self assert: (DeepComparator assert: 1 / 2s equals: 1 / 2s).
+	self assert: (DeepComparator assert: -1 equals: -1).
+	self assert: (DeepComparator assert: 0 equals: 1) not.
+	self assert: (DeepComparator assert: 1.1 equals: 0) not.
+	self assert: (DeepComparator assert: 1 / 2s equals: 0) not.
+	self assert: (DeepComparator assert: -1 equals: 0) not
+]
+
+{ #category : #tests }
+DeepComparatorTest >> testCompareOrderedCollections [
+
+	| orderedCollection1 orderedCollection2 |
+	orderedCollection1 := OrderedCollection new.
+	orderedCollection2 := OrderedCollection new.
+
+	orderedCollection1 add: 1.
+	orderedCollection2 add: 1.
+
+	self assert: (DeepComparator assert: orderedCollection1 equals: orderedCollection2)
 ]
 
 { #category : #tests }
 DeepComparatorTest >> testCompareStrings [
 
-	self assert: (DeepComparator deepEquals: 'test' with: 'test').
-	self assert: (DeepComparator deepEquals: '' with: '').
-	self assert: (DeepComparator deepEquals: 'test1' with: 'test2') not
+	self assert: (DeepComparator assert: 'test' equals: 'test').
+	self assert: (DeepComparator assert: '' equals: '').
+	self assert: (DeepComparator assert: 'test1' equals: 'test2') not
 ]
 
 { #category : #tests }
 DeepComparatorTest >> testCompareSymbols [
 
-	self assert: (DeepComparator deepEquals: #test with: #test).
-	self assert: (DeepComparator deepEquals: #test1 with: #test2) not
+	self assert: (DeepComparator assert: #test equals: #test).
+	self assert: (DeepComparator assert: #test1 equals: #test2) not
 ]
