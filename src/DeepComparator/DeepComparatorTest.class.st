@@ -10,14 +10,11 @@ DeepComparatorTest >> testCompareArrays [
 	| array1 array2 |
 	array1 := Array new: 5.
 	array2 := Array new: 5.
-	"array3 := Array new: 10."
 
 	array1 at: 1 put: 1.
 	array2 at: 1 put: 1.
-	"array3 at: 1 put: 1."
 
 	self assert: (DeepComparator deepEquals: array1 with: array2)
-	"self assert: (DeepComparator deepEquals: array1 with: array3) not"
 ]
 
 { #category : #tests }
@@ -37,6 +34,19 @@ DeepComparatorTest >> testCompareComplexObject [
 
 	self assert: (DeepComparator deepEquals: object1 with: object2).
 	self assert: (DeepComparator deepEquals: object1 with: object3) not
+]
+
+{ #category : #tests }
+DeepComparatorTest >> testCompareDictionary [
+
+	| dictionary1 dictionary2 |
+	dictionary1 := Dictionary new.
+	dictionary2 := Dictionary new.
+
+	dictionary1 at: 1 put: 3.
+	dictionary2 at: 1 put: 3.
+
+	self assert: (DeepComparator deepEquals: dictionary1 with: dictionary2)
 ]
 
 { #category : #tests }
@@ -97,6 +107,19 @@ DeepComparatorTest >> testCompareNumbers [
 	self assert: (DeepComparator deepEquals: 1.1 with: 0) not.
 	self assert: (DeepComparator deepEquals: 1 / 2s with: 0) not.
 	self assert: (DeepComparator deepEquals: -1 with: 0) not
+]
+
+{ #category : #tests }
+DeepComparatorTest >> testCompareOrderedCollections [
+
+	| orderedCollection1 orderedCollection2 |
+	orderedCollection1 := OrderedCollection new.
+	orderedCollection2 := OrderedCollection new.
+
+	orderedCollection1 add: 1.
+	orderedCollection2 add: 1.
+
+	self assert: (DeepComparator deepEquals: orderedCollection1 with: orderedCollection2)
 ]
 
 { #category : #tests }

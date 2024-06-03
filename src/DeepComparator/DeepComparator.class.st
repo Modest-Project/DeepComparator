@@ -9,7 +9,7 @@ DeepComparator class >> deepEquals: anObject1 with: anObject2 [
 	"Check recursively if the two objects are the same instance"
 
 	anObject1 == anObject2 ifTrue: [ ^ true ].
-	"anObject1 = anObject2 ifTrue: [ ^ true ]."
+	anObject1 = anObject2 ifTrue: [ ^ true ].
 
 	"Check if the classes are different"
 	anObject1 class ~= anObject2 class ifTrue: [ ^ false ].
