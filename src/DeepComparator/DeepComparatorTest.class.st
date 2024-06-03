@@ -7,14 +7,17 @@ Class {
 { #category : #tests }
 DeepComparatorTest >> testCompareArrays [
 
-	| array1 array2 |
+	| array1 array2 array3 |
 	array1 := Array new: 5.
 	array2 := Array new: 5.
+	array3 := Array new: 5.
 
 	array1 at: 1 put: 1.
 	array2 at: 1 put: 1.
+	array3 at: 1 put: 3.
 
-	self assert: array1 deepEquals: array2
+	self assert: array1 deepEquals: array2.
+	self deny: array1 deepEquals: array3
 ]
 
 { #category : #tests }
@@ -85,12 +88,12 @@ DeepComparatorTest >> testCompareNestedObjects [
 	array3 := Array new: 1.
 	array4 := Array new: 1.
 
-	array1 at: 1 put: array3.
-	array2 at: 1 put: array4.
-	array3 at: 1 put: 1.
-	array4 at: 1 put: 1.
+	array1 at: 1 put: 1.
+	array2 at: 1 put: 1.
+	array3 at: 1 put: array1.
+	array4 at: 1 put: array2.
 
-	self assert: array1 deepEquals: array2
+	self assert: array3 deepEquals: array4
 ]
 
 { #category : #tests }
