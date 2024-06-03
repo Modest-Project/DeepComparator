@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-DeepComparator class >> assert: anObject1 equals: anObject2 [
+DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 	"Check recursively if the two objects are the same instance"
 
 	anObject1 == anObject2 ifTrue: [ ^ true ].
@@ -33,7 +33,7 @@ DeepComparator class >> assert: anObject1 equals: anObject2 [
 		copy2 := anObject2 select: [ :e | e isNotNil].
 		copy1 size = copy2 size ifFalse: [ ^ false ].
 		copy1 doWithIndex: [ :elem :index |
-			(self assert: elem equals: (copy2 at: index)) ifFalse: [
+			(self assert: elem deepEquals: (copy2 at: index)) ifFalse: [
 				^ false ] ].
 		^ true ].
 	"select: [ :e | e isNotNil]"
@@ -41,5 +41,5 @@ DeepComparator class >> assert: anObject1 equals: anObject2 [
 	^ anObject1 class allInstVarNames allSatisfy: [ :varName |
 		  self
 			  assert: (anObject1 instVarNamed: varName)
-			  equals: (anObject2 instVarNamed: varName) ]
+			  deepEquals: (anObject2 instVarNamed: varName) ]
 ]

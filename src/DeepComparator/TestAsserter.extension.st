@@ -4,7 +4,7 @@ Extension { #name : #TestAsserter }
 TestAsserter >> assert: actual deepEquals: expected [
 
 	^ self
-		  assert: (DeepComparator assert: actual equals: expected)
+		  assert: (DeepComparator assert: actual deepEquals: expected)
 		  description: [ self comparingStringBetween: actual and: expected ]
 ]
 
@@ -12,6 +12,6 @@ TestAsserter >> assert: actual deepEquals: expected [
 TestAsserter >> deny: actual deepEquals: expected [
 
 	^ self
-		  deny: (DeepComparator assert: actual equals: expected)
+		  deny: (DeepComparator assert: actual deepEquals: expected)
 		  description: [ self comparingStringBetween: actual and: expected ]
 ]

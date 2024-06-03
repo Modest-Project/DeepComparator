@@ -71,8 +71,8 @@ DeepComparatorTest >> testCompareNestedComplexObject [
 	array3 at: 1 put: object3.
 
 	self assert: object1 deepEquals: object2.
-	self deny: object1 deepEquals: object3.
 	self assert: array1 deepEquals: array1.
+	self deny: object1 deepEquals: object3.
 	self deny: array1 deepEquals: array3
 ]
 
