@@ -7,3 +7,11 @@ TestAsserter >> assert: actual deepEquals: expected [
 		  assert: (DeepComparator assert: actual equals: expected)
 		  description: [ self comparingStringBetween: actual and: expected ]
 ]
+
+{ #category : #'*DeepComparator' }
+TestAsserter >> deny: actual deepEquals: expected [
+
+	^ self
+		  deny: (DeepComparator assert: actual equals: expected)
+		  description: [ self comparingStringBetween: actual and: expected ]
+]
