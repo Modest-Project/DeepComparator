@@ -1,1 +1,1 @@
-Package { #name : #BaselineOfDeepComparator }
+Package { #name : 'BaselineOfDeepComparator' }
