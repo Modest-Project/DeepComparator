@@ -1,10 +1,12 @@
 Class {
-	#name : #DeepComparator,
-	#superclass : #Object,
-	#category : #'DeepComparator-Core'
+	#name : 'DeepComparator',
+	#superclass : 'Object',
+	#category : 'DeepComparator-Core',
+	#package : 'DeepComparator',
+	#tag : 'Core'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 	"Check recursively if the two objects are the same instance"
 

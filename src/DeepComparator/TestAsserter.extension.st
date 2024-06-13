@@ -1,6 +1,6 @@
-Extension { #name : #TestAsserter }
+Extension { #name : 'TestAsserter' }
 
-{ #category : #'*DeepComparator' }
+{ #category : '*DeepComparator' }
 TestAsserter >> assert: actual deepEquals: expected [
 
 	^ self
@@ -8,7 +8,7 @@ TestAsserter >> assert: actual deepEquals: expected [
 		  description: [ self comparingStringBetween: actual and: expected ]
 ]
 
-{ #category : #'*DeepComparator' }
+{ #category : '*DeepComparator' }
 TestAsserter >> deny: actual deepEquals: expected [
 
 	^ self
