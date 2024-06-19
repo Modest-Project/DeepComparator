@@ -1,12 +1,10 @@
 Class {
-	#name : 'DeepComparator',
-	#superclass : 'Object',
-	#category : 'DeepComparator-Core',
-	#package : 'DeepComparator',
-	#tag : 'Core'
+	#name : #DeepComparator,
+	#superclass : #Object,
+	#category : #'DeepComparator-Core'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : #'as yet unclassified' }
 DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 	"Check recursively if the two objects are the same instance"
 
@@ -31,14 +29,14 @@ DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 	"If the objets are arrays"
 	anObject1 isArray ifTrue: [
 		| copy1 copy2 |
-		copy1 := anObject1 select: [ :e | e isNotNil].
-		copy2 := anObject2 select: [ :e | e isNotNil].
+		copy1 := anObject1 select: [ :e | e isNotNil ].
+		copy2 := anObject2 select: [ :e | e isNotNil ].
 		copy1 size = copy2 size ifFalse: [ ^ false ].
 		copy1 doWithIndex: [ :elem :index |
 			(self assert: elem deepEquals: (copy2 at: index)) ifFalse: [
 				^ false ] ].
 		^ true ].
-	"select: [ :e | e isNotNil]"
+
 	"For other types, check all instance variables"
 	^ anObject1 class allInstVarNames allSatisfy: [ :varName |
 		  self
