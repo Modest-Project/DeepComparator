@@ -17,8 +17,9 @@ DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 	"Check through OrderedCollections"
 	class == OrderedCollection ifTrue: [
 		1 to: anObject1 size do: [ :index |
-			(self deepEquals: (anObject1 at: index) with: (anObject2 at: index))
-				ifFalse: [ ^ false ] ].
+			(self
+				 assert: (anObject1 at: index)
+				 deepEquals: (anObject2 at: index)) ifFalse: [ ^ false ] ].
 		^ true ].
 
 	"If the objets are indexable"
@@ -26,12 +27,12 @@ DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 		anObject1 basicSize == anObject2 basicSize ifFalse: [ ^ false ].
 		1 to: anObject1 basicSize do: [ :index |
 			(self
-				 deepEquals: (anObject1 basicAt: index)
-				 with: (anObject2 basicAt: index)) ifFalse: [ ^ false ] ] ].
+				 assert: (anObject1 basicAt: index)
+				 deepEquals: (anObject2 basicAt: index)) ifFalse: [ ^ false ] ] ].
 
 	"For other types, check all instance variables"
 	^ class allInstVarNames allSatisfy: [ :varName |
 		  self
-			  deepEquals: (anObject1 instVarNamed: varName)
-			  with: (anObject2 instVarNamed: varName) ]
+			  assert: (anObject1 instVarNamed: varName)
+			  deepEquals: (anObject2 instVarNamed: varName) ]
 ]
