@@ -8,38 +8,30 @@ Class {
 DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 	"Check recursively if the two objects are the same instance"
 
+	| class |
 	anObject1 == anObject2 ifTrue: [ ^ true ].
-	anObject1 = anObject2 ifTrue: [ ^ true ].
 
 	"Check if the classes are different"
-	anObject1 class ~= anObject2 class ifTrue: [ ^ false ].
+	(class := anObject1 class) == anObject2 class ifFalse: [ ^ false ].
 
-	"If both are nil, they are considered equal"
-	(anObject1 isNil and: [ anObject2 isNil ]) ifTrue: [ ^ true ].
-
-	"If one is nil and the other is not, they are not equal"
-	(anObject1 isNil or: [ anObject2 isNil ]) ifTrue: [ ^ false ].
-
-	"If they are both basic types, check equality directly"
-	(anObject1 isNumber or: [
-		 anObject1 isString or: [
-			 anObject1 = true or: [ anObject1 = false ] ] ]) ifTrue: [
-		^ anObject1 = anObject2 ].
-
-	"If the objets are arrays"
-	anObject1 isArray ifTrue: [
-		| copy1 copy2 |
-		copy1 := anObject1 select: [ :e | e isNotNil ].
-		copy2 := anObject2 select: [ :e | e isNotNil ].
-		copy1 size = copy2 size ifFalse: [ ^ false ].
-		copy1 doWithIndex: [ :elem :index |
-			(self assert: elem deepEquals: (copy2 at: index)) ifFalse: [
-				^ false ] ].
+	"Check through OrderedCollections"
+	class == OrderedCollection ifTrue: [
+		1 to: anObject1 size do: [ :index |
+			(self deepEquals: (anObject1 at: index) with: (anObject2 at: index))
+				ifFalse: [ ^ false ] ].
 		^ true ].
 
+	"If the objets are indexable"
+	class isVariable ifTrue: [
+		anObject1 basicSize == anObject2 basicSize ifFalse: [ ^ false ].
+		1 to: anObject1 basicSize do: [ :index |
+			(self
+				 deepEquals: (anObject1 basicAt: index)
+				 with: (anObject2 basicAt: index)) ifFalse: [ ^ false ] ] ].
+
 	"For other types, check all instance variables"
-	^ anObject1 class allInstVarNames allSatisfy: [ :varName |
+	^ class allInstVarNames allSatisfy: [ :varName |
 		  self
-			  assert: (anObject1 instVarNamed: varName)
-			  deepEquals: (anObject2 instVarNamed: varName) ]
+			  deepEquals: (anObject1 instVarNamed: varName)
+			  with: (anObject2 instVarNamed: varName) ]
 ]
