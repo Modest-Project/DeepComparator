@@ -1,10 +1,12 @@
 Class {
-	#name : #DeepComparator,
-	#superclass : #Object,
-	#category : #'DeepComparator-Core'
+	#name : 'DeepComparator',
+	#superclass : 'Object',
+	#category : 'DeepComparator-Core',
+	#package : 'DeepComparator',
+	#tag : 'Core'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'asserting' }
 DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 	"Check recursively if the two objects are the same instance"
 
@@ -13,6 +15,9 @@ DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 
 	"Check if the classes are different"
 	(class := anObject1 class) == anObject2 class ifFalse: [ ^ false ].
+
+	"If immediate, == should have been true"
+	class isImmediateClass ifTrue: [ ^ false ].
 
 	"Check through OrderedCollections"
 	class == OrderedCollection ifTrue: [
