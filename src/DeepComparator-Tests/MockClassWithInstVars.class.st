@@ -1,21 +1,39 @@
 Class {
-	#name : 'MockClassWithInstVars',
-	#superclass : 'Object',
+	#name : #MockClassWithInstVars,
+	#superclass : #Object,
 	#instVars : [
 		'number',
-		'string'
+		'string',
+		'array'
 	],
-	#category : 'DeepComparator-Tests',
-	#package : 'DeepComparator-Tests'
+	#category : #'DeepComparator-Tests'
 }
 
-{ #category : 'accessing' }
+{ #category : #accessing }
+MockClassWithInstVars >> array [
+
+	^ array
+]
+
+{ #category : #accessing }
+MockClassWithInstVars >> array: anArray [
+
+	array := anArray
+]
+
+{ #category : #accessing }
+MockClassWithInstVars >> initialize [
+
+	array := Array new: 1
+]
+
+{ #category : #accessing }
 MockClassWithInstVars >> number: aNumber [
 
 	number := aNumber
 ]
 
-{ #category : 'accessing' }
+{ #category : #accessing }
 MockClassWithInstVars >> string: aString [
 
 	string := aString

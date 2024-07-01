@@ -1,16 +1,29 @@
 Class {
-	#name : 'DeepComparator',
-	#superclass : 'Object',
-	#category : 'DeepComparator-Core',
-	#package : 'DeepComparator',
-	#tag : 'Core'
+	#name : #DeepComparator,
+	#superclass : #Object,
+	#instVars : [
+		'visitedObjects'
+	],
+	#category : #'DeepComparator-Core'
 }
 
-{ #category : 'asserting' }
-DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
+{ #category : #asserting }
+DeepComparator >> assert: anObject1 deepEquals: anObject2 [
 	"Check recursively if the two objects are the same instance"
 
 	| class |
+	"If an object is already visited, the other must be the same DOESN'T WORK WHEN OBJETS ARE IDENTICALS BUT DIFFERENT INSTANCES"
+	visitedObjects
+		at: anObject1
+		ifPresent: [ :each |
+			visitedObjects
+				at: anObject2
+				ifPresent: [ :each2 | ^ each == each2 ]
+				ifAbsent: [ ^ false ] ]
+		ifAbsent: [ visitedObjects at: anObject2 ifPresent: [ ^ false ] ].
+	visitedObjects at: anObject1 put: anObject1.
+	visitedObjects at: anObject2 put: anObject2.
+
 	anObject1 == anObject2 ifTrue: [ ^ true ].
 
 	"Check if the classes are different"
@@ -40,4 +53,11 @@ DeepComparator class >> assert: anObject1 deepEquals: anObject2 [
 		  self
 			  assert: (anObject1 instVarNamed: varName)
 			  deepEquals: (anObject2 instVarNamed: varName) ]
+]
+
+{ #category : #asserting }
+DeepComparator >> initialize [
+
+	super initialize.
+	visitedObjects := OrderedDictionary new
 ]
