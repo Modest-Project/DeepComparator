@@ -14,19 +14,27 @@ Class {
 { #category : #asserting }
 DeepComparator >> addDifferenceFor: aValue1 and: aValue2 on: aVarName [
 
-	| formattedDifference |
-	formattedDifference := String streamContents: [ :stream |
-		                       stream
-			                       nextPutAll: 'field ';
-			                       nextPutAll: aVarName;
-			                       nextPutAll: ' differ:';
-			                       cr;
-			                       nextPutAll: 'actual value: ';
-			                       nextPutAll: aValue1 asString;
-			                       cr;
-			                       nextPutAll: ' | expected value: ';
-			                       nextPutAll: aValue2 asString ].
-	differencies add: formattedDifference
+	differencies add: (String streamContents: [ :stream |
+			 stream
+				 nextPutAll: 'field ';
+				 nextPutAll: aVarName;
+				 nextPutAll: ' differ:';
+				 cr;
+				 nextPutAll: 'actual value: ';
+				 nextPutAll: aValue1 asString;
+				 cr;
+				 nextPutAll: ' | expected value: ';
+				 nextPutAll: aValue2 asString ])
+]
+
+{ #category : #asserting }
+DeepComparator >> addDifferenceForReferences [
+
+
+	differencies add: (String streamContents: [ :stream |
+		                       stream nextPutAll:
+			                       'problem with referenced objects' ])
+	
 ]
 
 { #category : #asserting }
@@ -35,16 +43,16 @@ DeepComparator >> assert: anObject1 deepEquals: anObject2 [
 
 	| class |
 	"If an object is already visited, the other must be equals ; DOESN'T WORK WHEN OBJECTS ARE IDENTICALS BUT DIFFERENT INSTANCES"
-	visitedObjects
+	visitedObjects1
 		at: anObject1
 		ifPresent: [ :each |
-			visitedObjects
+			visitedObjects2
 				at: anObject2
 				ifPresent: [ :each2 | ^ each == each2 ]
 				ifAbsent: [ ^ false ] ]
-		ifAbsent: [ visitedObjects at: anObject2 ifPresent: [ ^ false ] ].
-	visitedObjects at: anObject1 put: anObject1.
-	visitedObjects at: anObject2 put: anObject2.
+		ifAbsent: [ visitedObjects2 at: anObject2 ifPresent: [ ^ false ] ].
+	visitedObjects1 at: anObject1 put: anObject1.
+	visitedObjects2 at: anObject2 put: anObject2.
 
 	anObject1 == anObject2 ifTrue: [ ^ true ].
 
@@ -82,29 +90,21 @@ DeepComparator >> assert: anObject1 deepEqualsWithDifferencies: anObject2 [
 	"Check recursively if the two objects are equals based on attributes"
 
 	| class visitedObjectIndex2 |
-	"If one object is already visited, the other must be stored at the same index in the dictionary of visited objects"
+	"If one object is already visited, the other must be stored at the same index in its dictionary of visited objects"
 	visitedObjectIndex2 := visitedObjects2
 		                       at: anObject2
 		                       ifAbsent: [ nil ].
 	visitedObjects1
 		at: anObject1
-		ifPresent: [ :visitedObjectIndex1 |
-			self halt. "returns true if both have already been visited and they were visited in the same place in their reference tree"
-			^ visitedObjectIndex1 == visitedObjectIndex2 ]
-		ifAbsent: [
-			self halt. "continues if both objects have not been visited"
-			visitedObjectIndex2 ifNotNil: [ ^ false ] ].
-	"visitedObjects
-		at: anObject1
-		ifPresent: [ :each |
-			visitedObjects
-				at: anObject2
-				ifPresent: [ :each2 | ^ each == each2 ]
-				ifAbsent: [ ^ false ] ]
-		ifAbsent: [ visitedObjects at: anObject2 ifPresent: [ ^ false ] ].
-	visitedObjects at: anObject1 put: anObject1.
-	visitedObjects at: anObject2 put: anObject2.
-	"
+		ifPresent: [ :visitedObjectIndex1 | "returns true if both have already been visited and they were visited in the same place in their references tree"
+			| res |  
+			(res := visitedObjectIndex1 == visitedObjectIndex2) ifFalse: [
+				self addDifferenceForReferences ].
+			^ res ]
+		ifAbsent: [ "continues if both objects have not been visited"
+			visitedObjectIndex2 ifNotNil: [
+				self addDifferenceForReferences.
+				^ false ] ].
 	visitedObjects1 at: anObject1 put: currentIndex.
 	visitedObjects2 at: anObject2 put: currentIndex.
 	currentIndex := currentIndex + 1.
@@ -136,10 +136,16 @@ DeepComparator >> assert: anObject1 deepEqualsWithDifferencies: anObject2 [
 	class isVariable ifTrue: [
 		anObject1 basicSize == anObject2 basicSize ifFalse: [ ^ false ].
 		1 to: anObject1 basicSize do: [ :index |
+			| var1 var2 |
 			(self
-				 assert: (anObject1 basicAt: index)
-				 deepEqualsWithDifferencies: (anObject2 basicAt: index)) ifFalse: [
-				^ false ] ] ].
+				 assert: (var1 := anObject1 basicAt: index)
+				 deepEqualsWithDifferencies: (var2 := anObject2 basicAt: index))
+				ifFalse: [
+					self
+						addDifferenceFor: var1
+						and: var2
+						on: anObject1 name , '[' , index asString , ']'.
+					^ false ] ] ].
 
 	"For other types, check all instance variables"
 	class allInstVarNames do: [ :varName |
@@ -165,15 +171,23 @@ DeepComparator >> getDifferencies [
 ]
 
 { #category : #asserting }
+DeepComparator >> getFirstDifference [
+
+	^ String streamContents: [ :stream |
+		  stream
+			  nextPutAll: differencies first;
+			  cr;
+			  cr ]
+]
+
+{ #category : #asserting }
 DeepComparator >> initialize [
 
 	super initialize.
+	differencies := OrderedCollection new.
+	currentIndex := 0.
 	visitedObjects := OrderedDictionary new.
 
-
 	visitedObjects1 := OrderedDictionary new.
-	visitedObjects2 := OrderedDictionary new.
-	currentIndex := 0.
-
-	differencies := OrderedCollection new
+	visitedObjects2 := OrderedDictionary new
 ]

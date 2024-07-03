@@ -9,7 +9,7 @@ TestAsserter >> assert: actual deepEquals: expected [
 				   assert: actual
 				   deepEqualsWithDifferencies: expected)
 		  description: [ "self comparingStringBetween: actual and: expected"
-			  comparator getDifferencies ]
+			  comparator getFirstDifference ]
 ]
 
 { #category : #'*DeepComparator' }
