@@ -176,7 +176,7 @@ DeepComparatorTest >> testDifferentClasses [
 	object1 string: 'test1'.
 	object1 number: 1.
 
-	object2 := PriorityQueue new.
+	object2 := OrderedCollection new.
 
 	self deny: object1 deepEquals: object2
 ]

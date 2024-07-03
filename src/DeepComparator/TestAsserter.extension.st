@@ -9,13 +9,15 @@ TestAsserter >> assert: actual deepEquals: expected [
 				   assert: actual
 				   deepEqualsWithDifferencies: expected)
 		  description: [ "self comparingStringBetween: actual and: expected"
-			  comparator getFirstDifference ]
+			  comparator getDifferencies ]
 ]
 
 { #category : #'*DeepComparator' }
 TestAsserter >> deny: actual deepEquals: expected [
 
 	^ self
-		  deny: (DeepComparator new assert: actual deepEquals: expected)
+		  deny: (DeepComparator new
+				   assert: actual
+				   deepEquals: expected)
 		  description: [ self comparingStringBetween: actual and: expected ]
 ]
