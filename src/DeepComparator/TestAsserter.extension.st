@@ -3,9 +3,13 @@ Extension { #name : #TestAsserter }
 { #category : #'*DeepComparator' }
 TestAsserter >> assert: actual deepEquals: expected [
 
+	| comparator |
 	^ self
-		  assert: (DeepComparator new assert: actual deepEquals: expected)
-		  description: [ self comparingStringBetween: actual and: expected ]
+		  assert: ((comparator := DeepComparator new)
+				   assert: actual
+				   deepEqualsWithDifferencies: expected)
+		  description: [ "self comparingStringBetween: actual and: expected"
+			  comparator getDifferencies ]
 ]
 
 { #category : #'*DeepComparator' }

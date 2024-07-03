@@ -33,7 +33,10 @@ DeepComparatorTest >> testCompareComplexObject [
 	object3 string: 'test1'.
 	object1 number: 1.
 	object2 number: 1.
-	object3 number: 3.
+	object3 number: 3. "difference"
+	object1 array: #( 1 2 3 ).
+	object2 array: #( 1 2 3 ).
+	object3 array: #( 1 2 3 ).
 
 	self assert: object1 deepEquals: object2.
 	self deny: object1 deepEquals: object3
@@ -123,6 +126,19 @@ DeepComparatorTest >> testCompareOrderedCollections [
 ]
 
 { #category : #tests }
+DeepComparatorTest >> testCompareReferenceLoop [
+
+	| object1 object2 |
+	object1 := MockClassWithInstVars new.
+	object2 := MockClassWithInstVars new.
+
+	object1 array at: 1 put: object1.
+	object2 array at: 1 put: object2.
+
+	self assert: object1 deepEquals: object2
+]
+
+{ #category : #tests }
 DeepComparatorTest >> testCompareStrings [
 
 	self assert: 'test' deepEquals: 'test'.
@@ -166,7 +182,7 @@ DeepComparatorTest >> testDifferentClasses [
 ]
 
 { #category : #tests }
-DeepComparatorTest >> testReferencedObject [
+DeepComparatorTest >> testReferenceLoop [
 
 	| object1 object2 |
 	object1 := MockClassWithInstVars new.
@@ -178,16 +194,4 @@ DeepComparatorTest >> testReferencedObject [
 	object2 string: 'object2'.
 
 	self deny: object1 deepEquals: object2
-]
-
-{ #category : #tests }
-DeepComparatorTest >> testReferencedSameObject [
-
-	| object1 |
-	object1 := MockClassWithInstVars new.
-
-	object1 array at: 1 put: object1.
-	object1 string: 'object1'.
-
-	self assert: object1 deepEquals: object1
 ]
