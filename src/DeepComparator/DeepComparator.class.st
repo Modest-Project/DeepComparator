@@ -180,14 +180,14 @@ DeepComparator >> getFirstDifference [
 			  cr ]
 ]
 
-{ #category : #asserting }
+{ #category : #initialization }
 DeepComparator >> initialize [
 
 	super initialize.
 	differencies := OrderedCollection new.
 	currentIndex := 0.
-	visitedObjects := OrderedDictionary new.
+	visitedObjects := IdentityDictionary new.
 
-	visitedObjects1 := OrderedDictionary new.
-	visitedObjects2 := OrderedDictionary new
+	visitedObjects1 := IdentityDictionary new.
+	visitedObjects2 := IdentityDictionary new
 ]
