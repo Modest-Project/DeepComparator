@@ -7,9 +7,8 @@ TestAsserter >> assert: actual deepEquals: expected [
 	^ self
 		  assert: ((comparator := DeepComparator new)
 				   assert: actual
-				   deepEqualsWithDifferencies: expected)
-		  description: [ "self comparingStringBetween: actual and: expected"
-			  comparator getDifferencies ]
+				   deepEquals: expected)
+		  description: [ comparator printDifferences ]
 ]
 
 { #category : #'*DeepComparator' }
