@@ -1,193 +1,192 @@
+"
+I am a structural equality checker for object graphs.
+I compare an actual object graph with an expected one by traversing them in parallel using a depth-first order.
+
+Each time a reference is followed in either graph, both objects are assigned a unique identifier shared by both graphs.
+These identifiers are used to enforce referential consistency.
+If an object is revisited in one graph, the corresponding object in the other graph must also be revisited and share the same identifier.
+
+The implementation handles all layout formats, as described in `Behavior>>#instSpec`.
+The most relevant ones include:
+- Immediates (e.g., SmallInteger) are treated as atomic and compared by value.
+- Non-indexable objects with instance variables (e.g., Point) are traversed through their instance variables.
+- Indexable objects without instance variables (e.g., Array) are traversed through their indexed elements.
+- Indexable objects with instance variables (e.g., MethodContext, WeakArray) are traversed through both instance variables and indexed elements.
+"
 Class {
 	#name : #DeepComparator,
 	#superclass : #Object,
 	#instVars : [
-		'visitedObjects',
-		'visitedObjects1',
-		'visitedObjects2',
-		'differencies',
-		'currentIndex'
+		'currentIndex',
+		'seenActual',
+		'seenExpected',
+		'differences'
 	],
 	#category : #'DeepComparator-Core'
 }
 
 { #category : #asserting }
-DeepComparator >> addDifferenceFor: aValue1 and: aValue2 on: aVarName [
+DeepComparator >> actual: actual at: actualIndex butExpected: expected at: expectedIndex [
 
-	differencies add: (String streamContents: [ :stream |
+	expectedIndex ifNil: [
+		^ self actual: actual at: actualIndex butExpectedMissing: expected ].
+
+	differences add: (String streamContents: [ :stream |
 			 stream
-				 nextPutAll: 'field ';
-				 nextPutAll: aVarName;
-				 nextPutAll: ' differ:';
+				 nextPutAll:
+					 'Actual and expected have been referenced but at different places:';
+				 cr;
+				 nextPutAll: 'Actual value @';
+				 print: actualIndex;
+				 nextPutAll: ': ';
+				 nextPutAll: actual asString;
+				 cr;
+				 nextPutAll: ' | Expected value @';
+				 print: expectedIndex;
+				 nextPutAll: ': ';
+				 nextPutAll: expected asString ])
+]
+
+{ #category : #asserting }
+DeepComparator >> actual: actual at: actualIndex butExpectedMissing: expected [
+
+	differences add: (String streamContents: [ :stream |
+			 stream
+				 nextPutAll: 'Actual has been referenced before but not expected:';
+				 cr;
+				 nextPutAll: 'Actual value @';
+				 print: actualIndex;
+				 nextPutAll: ': ';
+				 nextPutAll: actual asString;
+				 cr;
+				 nextPutAll: ' | Expected value: ';
+				 nextPutAll: expected asString ])
+]
+
+{ #category : #asserting }
+DeepComparator >> actual: actual butExpected: expected from: varName [
+
+	differences add: (String streamContents: [ :stream |
+			 stream
+				 nextPutAll: 'Variable `';
+				 nextPutAll: varName;
+				 nextPutAll: '` differ:';
 				 cr;
 				 nextPutAll: 'actual value: ';
-				 nextPutAll: aValue1 asString;
+				 nextPutAll: actual asString;
 				 cr;
 				 nextPutAll: ' | expected value: ';
-				 nextPutAll: aValue2 asString ])
+				 nextPutAll: expected asString ])
 ]
 
 { #category : #asserting }
-DeepComparator >> addDifferenceForReferences [
+DeepComparator >> actualMissing: actual butExpected: expected at: expectedIndex [
 
-
-	differencies add: (String streamContents: [ :stream |
-		                       stream nextPutAll:
-			                       'problem with referenced objects' ])
-	
+	differences add: (String streamContents: [ :stream |
+			 stream
+				 nextPutAll: 'Expected has been referenced before but not actual:';
+				 cr;
+				 nextPutAll: 'Actual value: ';
+				 nextPutAll: actual asString;
+				 cr;
+				 nextPutAll: ' | Expected value @';
+				 print: expectedIndex;
+				 nextPutAll: ': ';
+				 nextPutAll: expected asString ])
 ]
 
 { #category : #asserting }
-DeepComparator >> assert: anObject1 deepEquals: anObject2 [
-	"Check recursively if the two objects are equals based on attributes"
+DeepComparator >> assert: actual deepEquals: expected [
+	"Check if the two objects are structurally equal recursively."
 
-	| class |
-	"If an object is already visited, the other must be equals ; DOESN'T WORK WHEN OBJECTS ARE IDENTICALS BUT DIFFERENT INSTANCES"
-	visitedObjects1
-		at: anObject1
-		ifPresent: [ :each |
-			visitedObjects2
-				at: anObject2
-				ifPresent: [ :each2 | ^ each == each2 ]
-				ifAbsent: [ ^ false ] ]
-		ifAbsent: [ visitedObjects2 at: anObject2 ifPresent: [ ^ false ] ].
-	visitedObjects1 at: anObject1 put: anObject1.
-	visitedObjects2 at: anObject2 put: anObject2.
-
-	anObject1 == anObject2 ifTrue: [ ^ true ].
-
-	"Check if the classes are different"
-	(class := anObject1 class) == anObject2 class ifFalse: [ ^ false ].
-
-	"If immediate, == should have been true"
-	class isImmediateClass ifTrue: [ ^ false ].
-
-	"Check through OrderedCollections"
-	class == OrderedCollection ifTrue: [
-		1 to: anObject1 size do: [ :index |
-			(self
-				 assert: (anObject1 at: index)
-				 deepEquals: (anObject2 at: index)) ifFalse: [ ^ false ] ].
-		^ true ].
-
-	"If the objets are indexable"
-	class isVariable ifTrue: [
-		anObject1 basicSize == anObject2 basicSize ifFalse: [ ^ false ].
-		1 to: anObject1 basicSize do: [ :index |
-			(self
-				 assert: (anObject1 basicAt: index)
-				 deepEquals: (anObject2 basicAt: index)) ifFalse: [ ^ false ] ] ].
-
-	"For other types, check all instance variables"
-	^ class allInstVarNames allSatisfy: [ :varName |
-		  self
-			  assert: (anObject1 instVarNamed: varName)
-			  deepEquals: (anObject2 instVarNamed: varName) ]
-]
-
-{ #category : #asserting }
-DeepComparator >> assert: anObject1 deepEqualsWithDifferencies: anObject2 [
-	"Check recursively if the two objects are equals based on attributes"
-
-	| class visitedObjectIndex2 |
-	"If one object is already visited, the other must be stored at the same index in its dictionary of visited objects"
-	visitedObjectIndex2 := visitedObjects2
-		                       at: anObject2
-		                       ifAbsent: [ nil ].
-	visitedObjects1
-		at: anObject1
-		ifPresent: [ :visitedObjectIndex1 | "returns true if both have already been visited and they were visited in the same place in their references tree"
-			| res |  
-			(res := visitedObjectIndex1 == visitedObjectIndex2) ifFalse: [
-				self addDifferenceForReferences ].
+	| class expectedIndex actualVar expectedVar |
+	"First, check referencial consistency.
+	If one object is already visited, the other must also be visited and assigned the same identifier."
+	expectedIndex := seenExpected at: expected ifAbsent: [ nil ].
+	seenActual
+		at: actual
+		ifPresent: [ :actualIndex | "Actual has been assigned an identifier"
+			| res |
+			(res := actualIndex == expectedIndex) ifFalse: [ "Expected was not visited or identifiers differ"
+				self
+					actual: actual
+					at: actualIndex
+					butExpected: expected
+					at: expectedIndex ].
 			^ res ]
-		ifAbsent: [ "continues if both objects have not been visited"
-			visitedObjectIndex2 ifNotNil: [
-				self addDifferenceForReferences.
+		ifAbsent: [ "Actual has not been visited, expected must not have been visited either"
+			expectedIndex ifNotNil: [
+				self actualMissing: actual butExpected: expected at: expectedIndex.
 				^ false ] ].
-	visitedObjects1 at: anObject1 put: currentIndex.
-	visitedObjects2 at: anObject2 put: currentIndex.
+
+	"Assign the same identifier to the actual and expected objects"
+	seenActual at: actual put: currentIndex.
+	seenExpected at: expected put: currentIndex.
 	currentIndex := currentIndex + 1.
 
-	anObject1 == anObject2 ifTrue: [ ^ true ].
+	"Now begins the comparison, start by checking identity"
+	actual == expected ifTrue: [ ^ true ].
 
 	"Check if the classes are different"
-	(class := anObject1 class) == anObject2 class ifFalse: [ ^ false ].
+	(class := actual class) == expected class ifFalse: [ ^ false ].
 
 	"If immediate, == should have been true"
 	class isImmediateClass ifTrue: [ ^ false ].
 
-	"Check through OrderedCollections"
+	"Check *through* OrderedCollections, the only special case in which structural equality is not enforced."
 	class == OrderedCollection ifTrue: [
-		1 to: anObject1 size do: [ :index |
-			| var1 var2 |
+		actual size == expected size ifFalse: [ ^ false ].
+		1 to: actual size do: [ :index |
 			(self
-				 assert: (var1 := anObject1 at: index)
-				 deepEqualsWithDifferencies: (var2 := anObject2 at: index))
-				ifFalse: [
-					self
-						addDifferenceFor: var1
-						and: var2
-						on: anObject1 name , '[' , index asString , ']'.
-					^ false ] ].
+				 assert: (actualVar := actual at: index)
+				 deepEquals: (expectedVar := expected at: index)) ifFalse: [
+				self
+					actual: actualVar
+					butExpected: expectedVar
+					from: '@' , index asString.
+				^ false ] ].
 		^ true ].
 
-	"If the objets are indexable"
+	"Check slots of indexable objects"
 	class isVariable ifTrue: [
-		anObject1 basicSize == anObject2 basicSize ifFalse: [ ^ false ].
-		1 to: anObject1 basicSize do: [ :index |
-			| var1 var2 |
+		actual basicSize == expected basicSize ifFalse: [ ^ false ].
+		1 to: actual basicSize do: [ :index |
 			(self
-				 assert: (var1 := anObject1 basicAt: index)
-				 deepEqualsWithDifferencies: (var2 := anObject2 basicAt: index))
-				ifFalse: [
-					self
-						addDifferenceFor: var1
-						and: var2
-						on: anObject1 name , '[' , index asString , ']'.
-					^ false ] ] ].
+				 assert: (actualVar := actual basicAt: index)
+				 deepEquals: (expectedVar := expected basicAt: index)) ifFalse: [
+				self
+					actual: actualVar
+					butExpected: expectedVar
+					from: class name , '@' , index asString.
+				^ false ] ] ].
 
-	"For other types, check all instance variables"
+	"Check instance variables"
 	class allInstVarNames do: [ :varName |
-		| var1 var2 |
 		(self
-			 assert: (var1 := anObject1 instVarNamed: varName)
-			 deepEqualsWithDifferencies:
-			 (var2 := anObject2 instVarNamed: varName)) ifFalse: [
-			self addDifferenceFor: var1 and: var2 on: varName.
-			^ false ] ].
+			 assert: (actualVar := actual instVarNamed: varName)
+			 deepEquals: (expectedVar := expected instVarNamed: varName))
+			ifFalse: [
+				self actual: actualVar butExpected: expectedVar from: varName.
+				^ false ] ].
 	^ true
-]
-
-{ #category : #asserting }
-DeepComparator >> getDifferencies [
-
-	^ String streamContents: [ :stream |
-		  differencies do: [ :each |
-			  stream
-				  nextPutAll: each;
-				  cr;
-				  cr ] ]
-]
-
-{ #category : #asserting }
-DeepComparator >> getFirstDifference [
-
-	^ String streamContents: [ :stream |
-		  stream
-			  nextPutAll: differencies first;
-			  cr;
-			  cr ]
 ]
 
 { #category : #initialization }
 DeepComparator >> initialize [
 
 	super initialize.
-	differencies := OrderedCollection new.
+	differences := OrderedCollection new.
 	currentIndex := 0.
-	visitedObjects := IdentityDictionary new.
 
-	visitedObjects1 := IdentityDictionary new.
-	visitedObjects2 := IdentityDictionary new
+	seenActual := IdentityDictionary new.
+	seenExpected := IdentityDictionary new
+]
+
+{ #category : #asserting }
+DeepComparator >> printDifferences [
+
+	^ String streamContents: [ :stream |
+		  differences
+			  do: [ :each | stream nextPutAll: each ]
+			  separatedBy: [ stream cr cr ] ]
 ]
