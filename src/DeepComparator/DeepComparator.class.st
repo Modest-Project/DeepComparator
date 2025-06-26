@@ -14,18 +14,20 @@ The most relevant ones include:
 - Indexable objects with instance variables (e.g., MethodContext, WeakArray) are traversed through both instance variables and indexed elements.
 "
 Class {
-	#name : #DeepComparator,
-	#superclass : #Object,
+	#name : 'DeepComparator',
+	#superclass : 'Object',
 	#instVars : [
 		'currentIndex',
 		'seenActual',
 		'seenExpected',
 		'differences'
 	],
-	#category : #'DeepComparator-Core'
+	#category : 'DeepComparator-Core',
+	#package : 'DeepComparator',
+	#tag : 'Core'
 }
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DeepComparator >> actual: actual at: actualIndex butExpected: expected at: expectedIndex [
 
 	expectedIndex ifNil: [
@@ -36,25 +38,25 @@ DeepComparator >> actual: actual at: actualIndex butExpected: expected at: expec
 				 nextPutAll:
 					 'Actual and expected have been referenced but at different places:';
 				 cr;
-				 nextPutAll: 'Actual value @';
+				 nextPutAll: 'Actual value #';
 				 print: actualIndex;
 				 nextPutAll: ': ';
 				 nextPutAll: actual asString;
 				 cr;
-				 nextPutAll: ' | Expected value @';
+				 nextPutAll: ' | Expected value #';
 				 print: expectedIndex;
 				 nextPutAll: ': ';
 				 nextPutAll: expected asString ])
 ]
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DeepComparator >> actual: actual at: actualIndex butExpectedMissing: expected [
 
 	differences add: (String streamContents: [ :stream |
 			 stream
 				 nextPutAll: 'Actual has been referenced before but not expected:';
 				 cr;
-				 nextPutAll: 'Actual value @';
+				 nextPutAll: 'Actual value #';
 				 print: actualIndex;
 				 nextPutAll: ': ';
 				 nextPutAll: actual asString;
@@ -63,7 +65,7 @@ DeepComparator >> actual: actual at: actualIndex butExpectedMissing: expected [
 				 nextPutAll: expected asString ])
 ]
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DeepComparator >> actual: actual butExpected: expected from: varName [
 
 	differences add: (String streamContents: [ :stream |
@@ -79,7 +81,7 @@ DeepComparator >> actual: actual butExpected: expected from: varName [
 				 nextPutAll: expected asString ])
 ]
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DeepComparator >> actualMissing: actual butExpected: expected at: expectedIndex [
 
 	differences add: (String streamContents: [ :stream |
@@ -89,13 +91,13 @@ DeepComparator >> actualMissing: actual butExpected: expected at: expectedIndex 
 				 nextPutAll: 'Actual value: ';
 				 nextPutAll: actual asString;
 				 cr;
-				 nextPutAll: ' | Expected value @';
+				 nextPutAll: ' | Expected value #';
 				 print: expectedIndex;
 				 nextPutAll: ': ';
 				 nextPutAll: expected asString ])
 ]
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DeepComparator >> assert: actual deepEquals: expected [
 	"Check if the two objects are structurally equal recursively."
 
@@ -143,7 +145,7 @@ DeepComparator >> assert: actual deepEquals: expected [
 				self
 					actual: actualVar
 					butExpected: expectedVar
-					from: '@' , index asString.
+					from: 'OrderedCollection@' , index asString.
 				^ false ] ].
 		^ true ].
 
@@ -171,7 +173,7 @@ DeepComparator >> assert: actual deepEquals: expected [
 	^ true
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DeepComparator >> initialize [
 
 	super initialize.
@@ -182,7 +184,7 @@ DeepComparator >> initialize [
 	seenExpected := IdentityDictionary new
 ]
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DeepComparator >> printDifferences [
 
 	^ String streamContents: [ :stream |

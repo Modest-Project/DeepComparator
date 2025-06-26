@@ -1,6 +1,6 @@
-Extension { #name : #TestAsserter }
+Extension { #name : 'TestAsserter' }
 
-{ #category : #'*DeepComparator' }
+{ #category : '*DeepComparator' }
 TestAsserter >> assert: actual deepEquals: expected [
 
 	| comparator |
@@ -11,7 +11,7 @@ TestAsserter >> assert: actual deepEquals: expected [
 		  description: [ comparator printDifferences ]
 ]
 
-{ #category : #'*DeepComparator' }
+{ #category : '*DeepComparator' }
 TestAsserter >> deny: actual deepEquals: expected [
 
 	^ self
